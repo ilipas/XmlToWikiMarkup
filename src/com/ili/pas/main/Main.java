@@ -1,10 +1,11 @@
-package com.ilija.pasic.main;
+package com.ili.pas.main;
 
 import java.io.Console;
 import java.io.File;
 import java.io.FilenameFilter;
 import javax.xml.bind.JAXBException;
-import com.ilija.pasic.util.XmlToWikiFilesProcessor;
+
+import com.ili.pas.util.XmlToWikiFilesProcessor;
 
 public class Main {
 

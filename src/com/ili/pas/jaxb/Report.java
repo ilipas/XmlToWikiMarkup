@@ -6,7 +6,7 @@
 //
 
 
-package com.ilija.pasic.jaxb;
+package com.ili.pas.jaxb;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element ref="{}italic" maxOccurs="unbounded" minOccurs="0"/>
+ *         &lt;element ref="{}section" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -41,10 +41,10 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "content"
 })
-@XmlRootElement(name = "bold")
-public class Bold {
+@XmlRootElement(name = "report")
+public class Report {
 
-    @XmlElementRef(name = "italic", type = Italic.class, required = false)
+    @XmlElementRef(name = "section", type = Section.class, required = false)
     @XmlMixed
     protected List<Object> content;
 
@@ -67,7 +67,7 @@ public class Bold {
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     * {@link Italic }
+     * {@link Section }
      * 
      * 
      */

@@ -6,15 +6,18 @@
 //
 
 
-package com.ilija.pasic.jaxb;
+package com.ili.pas.jaxb;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElementRefs;
 import javax.xml.bind.annotation.XmlMixed;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlType;
 
 
@@ -27,9 +30,12 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;complexType>
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
- *       &lt;sequence>
- *         &lt;element ref="{}bold" maxOccurs="unbounded" minOccurs="0"/>
- *       &lt;/sequence>
+ *       &lt;choice maxOccurs="unbounded" minOccurs="0">
+ *         &lt;element ref="{}bold"/>
+ *         &lt;element ref="{}italic"/>
+ *         &lt;element ref="{}section"/>
+ *       &lt;/choice>
+ *       &lt;attribute name="heading" use="required" type="{http://www.w3.org/2001/XMLSchema}anySimpleType" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -41,12 +47,19 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name = "", propOrder = {
     "content"
 })
-@XmlRootElement(name = "italic")
-public class Italic {
+@XmlRootElement(name = "section")
+public class Section {
 
-    @XmlElementRef(name = "bold", type = Bold.class, required = false)
+    @XmlElementRefs({
+        @XmlElementRef(name = "italic", type = Italic.class, required = false),
+        @XmlElementRef(name = "section", type = Section.class, required = false),
+        @XmlElementRef(name = "bold", type = Bold.class, required = false)
+    })
     @XmlMixed
     protected List<Object> content;
+    @XmlAttribute(name = "heading", required = true)
+    @XmlSchemaType(name = "anySimpleType")
+    protected String heading;
 
     /**
      * Gets the value of the content property.
@@ -68,6 +81,8 @@ public class Italic {
      * Objects of the following type(s) are allowed in the list
      * {@link String }
      * {@link Bold }
+     * {@link Section }
+     * {@link Italic }
      * 
      * 
      */
@@ -76,6 +91,30 @@ public class Italic {
             content = new ArrayList<Object>();
         }
         return this.content;
+    }
+
+    /**
+     * Gets the value of the heading property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getHeading() {
+        return heading;
+    }
+
+    /**
+     * Sets the value of the heading property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setHeading(String value) {
+        this.heading = value;
     }
 
 }

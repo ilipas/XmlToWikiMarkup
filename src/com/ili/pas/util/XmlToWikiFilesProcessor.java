@@ -1,4 +1,4 @@
-package com.ilija.pasic.util;
+package com.ili.pas.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,11 +9,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import com.ilija.pasic.jaxb.Bold;
-import com.ilija.pasic.jaxb.Italic;
-import com.ilija.pasic.jaxb.ObjectFactory;
-import com.ilija.pasic.jaxb.Report;
-import com.ilija.pasic.jaxb.Section;
+
+import com.ili.pas.jaxb.Bold;
+import com.ili.pas.jaxb.Italic;
+import com.ili.pas.jaxb.ObjectFactory;
+import com.ili.pas.jaxb.Report;
+import com.ili.pas.jaxb.Section;
 
 /**
  * Processes xml files from the specified directory and creates a new file

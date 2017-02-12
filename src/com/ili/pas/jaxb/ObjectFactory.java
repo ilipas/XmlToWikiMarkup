@@ -6,7 +6,7 @@
 //
 
 
-package com.ilija.pasic.jaxb;
+package com.ili.pas.jaxb;
 
 import javax.xml.bind.annotation.XmlRegistry;
 

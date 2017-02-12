@@ -1,4 +1,4 @@
-package com.ilija.pasic.util;
+package com.ili.pas.util;
 
 public class WikiMarkup {
 	
