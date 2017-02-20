@@ -10,22 +10,23 @@ import com.ili.pas.util.XmlToWikiFilesProcessor;
 public class Main {
 
 	public static void main(String[] args) throws JAXBException {
-
-		Console console = System.console();
-		if (console == null) {
-			System.err.println("No console.");
+		
+		System.out.println("Enter file input and output directories");
+		
+		if(args.length != 2){
+			System.err.println("!!! Expected two inputs: input and output directories. Exiting ...");
 			System.exit(1);
 		}
 
 		//Read user inputs
-		String inputDir = console.readLine("Enter file input directory: ");
+		String inputDir = args[0];
 		final File inputDirectory = new File(inputDir);
 		if (!inputDirectory.exists()) {
 			System.out.println(inputDirectory + " directory doesn't exists. Exiting ...");
 			System.exit(1);
 		}
 
-		String outputDir = console.readLine("Enter file output directory: ");
+		String outputDir = args[1];
 		final File outputDirectory = new File(outputDir);
 		if (!outputDirectory.exists()) {
 			System.out.println(outputDirectory + " directory doesn't exists. Creating new...");
