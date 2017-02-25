@@ -14,7 +14,7 @@ public class Main {
 		System.out.println("Enter file input and output directories");
 		
 		if(args.length != 2){
-			System.err.println("!!! Expected two inputs: input and output directories. Exiting ...");
+			System.err.println("!!! Expected input and output directories but found " + args.length + " inputs. Exiting ...");
 			System.exit(1);
 		}
 
