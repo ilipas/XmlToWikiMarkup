@@ -1,24 +1,23 @@
 package com.ili.pas.main;
 
-import java.io.Console;
 import java.io.File;
 import java.io.FilenameFilter;
 import javax.xml.bind.JAXBException;
 
+import com.ili.pas.util.DirectoryPathWatcher;
 import com.ili.pas.util.XmlToWikiFilesProcessor;
 
 public class Main {
 
 	public static void main(String[] args) throws JAXBException {
-		
-		System.out.println("Enter file input and output directories");
-		
-		if(args.length != 2){
-			System.err.println("!!! Expected input and output directories but found " + args.length + " inputs. Exiting ...");
+
+		if (args.length != 2) {
+			System.err.println(
+					"!!! Expected input and output directories but found " + args.length + " arguments. Exiting ...");
 			System.exit(1);
 		}
 
-		//Read user inputs
+		// Get user input directory
 		String inputDir = args[0];
 		final File inputDirectory = new File(inputDir);
 		if (!inputDirectory.exists()) {
@@ -26,6 +25,7 @@ public class Main {
 			System.exit(1);
 		}
 
+		// Get user output directory
 		String outputDir = args[1];
 		final File outputDirectory = new File(outputDir);
 		if (!outputDirectory.exists()) {
@@ -39,25 +39,26 @@ public class Main {
 				System.exit(1);
 			}
 		}
-		
-		//Get xml files from the specified directory
+
+		// Get existing xml files from the specified input directory
 		File[] xmlFiles = inputDirectory.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.toLowerCase().endsWith(".xml");
 			}
 		});
+		
+		XmlToWikiFilesProcessor xmlToWikiFilesProcessor = new XmlToWikiFilesProcessor();
+		xmlToWikiFilesProcessor.setOutputDirectory(outputDirectory);
 
-		//Process files
-		if (xmlFiles.length == 0) {
-			System.out.println("No files found to process in directory: " + inputDirectory + ". Exiting...");
-			System.exit(1);
-		} else {
-			System.out.println("Number of files to process: " + xmlFiles.length);
-			XmlToWikiFilesProcessor xmlToWikiFilesProcessor = new XmlToWikiFilesProcessor();
-			xmlToWikiFilesProcessor.processFiles(xmlFiles, outputDirectory);
-			System.out.println("Done");
+		// Process existing files if any
+		if (xmlFiles.length != 0) {
+			System.out.println("Found " + xmlFiles.length + "files. Processing...");
+			xmlToWikiFilesProcessor.processFiles(xmlFiles);
 		}
+		
+		//Keep looking for new files
+		DirectoryPathWatcher.watchDirectoryPath(inputDirectory, xmlToWikiFilesProcessor);
 
 	}
 
