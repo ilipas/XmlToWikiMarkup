@@ -27,23 +27,34 @@ public class XmlToWikiFilesProcessor {
 
 	private JAXBContext jaxbContext;
 	private Unmarshaller unmarshaller;
+	private File outputDirectory;
 	private static final String NEW_LINE = "\n";
 	private static final String WIKI_FILE_EXTENTION = ".wiki";
 	private int headingLevel;
 
-	public XmlToWikiFilesProcessor() throws JAXBException {
-		jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
-		unmarshaller = jaxbContext.createUnmarshaller();
+	public XmlToWikiFilesProcessor(){
+		
+		try {
+			jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
+			unmarshaller = jaxbContext.createUnmarshaller();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
 		headingLevel = 0;
 	}
 
 	@SuppressWarnings("deprecation")
-	public void processFiles(File[] xmlFiles, File outputDirectory) {
+	public void processFiles(File[] filesToProcess) {
 
-		for (File xmlFile : xmlFiles) {
-
+		for (File xmlFile : filesToProcess) {
+			System.out.println("Processing file: " + xmlFile);
 			Report report = null;
 			try {
+				//check if xml file
+				if(!xmlFile.getName().toLowerCase().endsWith(".xml")){
+					System.out.println("Found non xml file " + xmlFile);
+					continue;
+				}
 				// Unmarshal xml file
 				report = (Report) unmarshaller.unmarshal(xmlFile);
 
@@ -54,8 +65,11 @@ public class XmlToWikiFilesProcessor {
 				// Write result to .wiki file
 				String filePath = outputDirectory + System.getProperty("file.separator")
 						+ FilenameUtils.getBaseName(xmlFile.getName()) + WIKI_FILE_EXTENTION;
+				
+				System.out.println("Writing file :" + filePath);
 
 				FileUtils.writeStringToFile(new File(filePath), stringBuilder.toString());
+				
 			} catch (IOException | JAXBException e) {
 				System.out.println("Error processing file : " + xmlFile.getName());
 			}
@@ -148,6 +162,14 @@ public class XmlToWikiFilesProcessor {
 	private static String removeTabs(Object text) {
 		String result = ((String) text).replace("\t", "");
 		return result;
+	}
+
+	public File getOutputDirectory() {
+		return outputDirectory;
+	}
+
+	public void setOutputDirectory(File outputDirectory) {
+		this.outputDirectory = outputDirectory;
 	}
 
 }
