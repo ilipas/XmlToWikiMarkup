@@ -13,11 +13,11 @@ public class Main {
 
 		if (args.length != 2) {
 			System.err.println(
-					"!!! Expected input and output directories but found " + args.length + " arguments. Exiting ...");
+					"!!! Expected input and output directories to be specified, but found " + args.length + " arguments. Exiting ...");
 			System.exit(1);
 		}
 
-		// Get user input directory
+		// Get user specified input directory
 		String inputDir = args[0];
 		final File inputDirectory = new File(inputDir);
 		if (!inputDirectory.exists()) {
@@ -25,7 +25,7 @@ public class Main {
 			System.exit(1);
 		}
 
-		// Get user output directory
+		// Get user specified output directory
 		String outputDir = args[1];
 		final File outputDirectory = new File(outputDir);
 		if (!outputDirectory.exists()) {
@@ -57,7 +57,7 @@ public class Main {
 			xmlToWikiFilesProcessor.processFiles(xmlFiles);
 		}
 		
-		//Keep looking for new files
+		//Keep looking for new files that might be added to the input directory
 		DirectoryPathWatcher.watchDirectoryPath(inputDirectory, xmlToWikiFilesProcessor);
 
 	}

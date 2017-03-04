@@ -16,11 +16,18 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
 
+/**
+ * This class detects new files added to the specified directory, adds new files
+ * to an array and forwards the array to {@link XmlToWikiFilesProcessor} class for
+ * processing
+ * 
+ * @author ilijapasic
+ *
+ */
 public class DirectoryPathWatcher {
-	
 
 	public static void watchDirectoryPath(File inputDirectory, XmlToWikiFilesProcessor xmlToWikiFilesProcessor) {
-		
+
 		Path path = FileSystems.getDefault().getPath(inputDirectory.getPath());
 		// Sanity check - Check if path is a directory
 		try {
@@ -33,12 +40,10 @@ public class DirectoryPathWatcher {
 			ioe.printStackTrace();
 		}
 
-		System.out.println("Watching path: " + path);
-
 		// Obtain the file system of the Path
 		FileSystem fs = path.getFileSystem();
 
-		// Create the new WatchService
+		// Create the WatchService
 		try (WatchService service = fs.newWatchService()) {
 
 			// Register the path to the service
@@ -48,7 +53,8 @@ public class DirectoryPathWatcher {
 			// Start the infinite polling loop
 			WatchKey key = null;
 			while (true) {
-				//Returns a queued key. If no queued key is available, this method waits.
+				// Returns a queued key. If no queued key is available, this
+				// method waits.
 				key = service.take();
 
 				// Dequeue events
@@ -57,7 +63,7 @@ public class DirectoryPathWatcher {
 				List<WatchEvent<?>> watchEvents = key.pollEvents();
 				File[] files = new File[watchEvents.size()];
 				for (WatchEvent<?> watchEvent : watchEvents) {
-					// Get the type of the event
+					// Get a type of the event
 					kind = watchEvent.kind();
 					if (OVERFLOW == kind) {
 						continue; // loop
@@ -66,14 +72,13 @@ public class DirectoryPathWatcher {
 						@SuppressWarnings("unchecked")
 						Path newPath = ((WatchEvent<Path>) watchEvent).context();
 						System.out.println("New file added: " + newPath);
-						//File file = new File(inputDirectory, newPath.toString());
 						files[i] = new File(inputDirectory, newPath.toString());
 						i++;
 					}
 				}
 
 				xmlToWikiFilesProcessor.processFiles(files);
-				
+
 				if (!key.reset()) {
 					break; // loop
 				}

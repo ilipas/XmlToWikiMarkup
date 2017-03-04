@@ -7,7 +7,7 @@ public class WikiMarkup {
 
 	public static String getHeadingLevel(int key) {
 		
-		String headingLevel = null;
+		String headingLevel = "";
 		
 		switch (key) {
 		case 1:

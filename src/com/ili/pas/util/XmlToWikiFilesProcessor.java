@@ -17,8 +17,8 @@ import com.ili.pas.jaxb.Report;
 import com.ili.pas.jaxb.Section;
 
 /**
- * Processes xml files from the specified directory and creates a new file
- * containing corresponding wiki markup in the specified output directory
+ * Processes xml files from the user specified directory, creates a new file
+ * containing corresponding wiki markup and saves it in the user specified output directory
  * 
  * @author ilijapasic
  *
@@ -34,13 +34,14 @@ public class XmlToWikiFilesProcessor {
 
 	public XmlToWikiFilesProcessor(){
 		
+		headingLevel = 0;
+		
 		try {
 			jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
 			unmarshaller = jaxbContext.createUnmarshaller();
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}
-		headingLevel = 0;
 	}
 
 	@SuppressWarnings("deprecation")
@@ -50,7 +51,7 @@ public class XmlToWikiFilesProcessor {
 			System.out.println("Processing file: " + xmlFile);
 			Report report = null;
 			try {
-				//check if xml file
+				//Check if xml file
 				if(!xmlFile.getName().toLowerCase().endsWith(".xml")){
 					System.out.println("Found non xml file " + xmlFile);
 					continue;
@@ -134,8 +135,8 @@ public class XmlToWikiFilesProcessor {
 	}
 
 	/**
-	 * Remove new line characters from the beginning of the string and duplicate
-	 * new line characters at the end of the string
+	 * Remove new line characters from the beginning of the string and remove duplicate
+	 * new line characters from the end of the string
 	 * 
 	 * @param text,
 	 *            text to process
