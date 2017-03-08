@@ -2,8 +2,6 @@ package com.ili.pas.main;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import javax.xml.bind.JAXBException;
-
 import com.ili.pas.util.DirectoryPathWatcher;
 import com.ili.pas.util.XmlToWikiFilesProcessor;
 
