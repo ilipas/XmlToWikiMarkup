@@ -18,20 +18,23 @@ import java.util.List;
 
 /**
  * This class detects new files added to the specified directory, adds new files
- * to an array and forwards the array to {@link XmlToWikiFilesProcessor} class
+ * to an array and forwards the array to {@link FileProcessor} class
  * for processing
  * 
  */
 public class DirectoryPathWatcher {
 
-	private static File inputDirectory;
-	private static XmlToWikiFilesProcessor xmlToWikiFilesProcessor;
-	private static WatchService service;
+	private File watchedDirectory;
+	private FileProcessor fileProcessor;
+	private WatchService watchService;
 
-	public static void watchDirectoryPath() {
+	public DirectoryPathWatcher(File watchedDirectory) {
+		this.watchedDirectory = watchedDirectory;
+	}
 
-		Path path = FileSystems.getDefault().getPath(inputDirectory.getPath());
-		// Sanity check - Check if path is a directory
+	public void watchDirectoryPath() {
+
+		Path path = FileSystems.getDefault().getPath(watchedDirectory.getPath());
 		try {
 			Boolean isDirectory = (Boolean) Files.getAttribute(path, "basic:isDirectory", NOFOLLOW_LINKS);
 			if (!isDirectory) {
@@ -47,33 +50,31 @@ public class DirectoryPathWatcher {
 
 		try {
 			// Create the WatchService
-			service = fs.newWatchService();
+			watchService = fs.newWatchService();
 
 			// Register the path to the service
 			// Watch for creation events
-			path.register(service, ENTRY_CREATE);
+			path.register(watchService, ENTRY_CREATE);
 
 			startStopWatchService(true);
 
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
+		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	public static void startStopWatchService(boolean isStart) throws InterruptedException, IOException {
+	public void startStopWatchService(boolean isStart) throws InterruptedException, IOException {
 		if (!isStart) {
 			System.out.println("Stoping path watcher service ...");
-			service.close();
+			watchService.close();
 		}
 		// Start the infinite polling loop
 		WatchKey key = null;
 		while (isStart) {
 			// Returns a queued key. If no queued key is available, this
 			// method waits.
-			key = service.take();
+			key = watchService.take();
 
 			// Dequeue events
 			Kind<?> kind = null;
@@ -90,12 +91,12 @@ public class DirectoryPathWatcher {
 					@SuppressWarnings("unchecked")
 					Path newPath = ((WatchEvent<Path>) watchEvent).context();
 					System.out.println("New file added: " + newPath);
-					files[i] = new File(inputDirectory, newPath.toString());
+					files[i] = new File(watchedDirectory, newPath.toString());
 					i++;
 				}
 			}
 
-			xmlToWikiFilesProcessor.processFiles(files);
+			fileProcessor.processFiles(files);
 
 			if (!key.reset()) {
 				break; // loop
@@ -105,11 +106,7 @@ public class DirectoryPathWatcher {
 
 	}
 
-	public static void setInputDirectory(File inputDirectory) {
-		DirectoryPathWatcher.inputDirectory = inputDirectory;
-	}
-
-	public static void setXmlToWikiFilesProcessor(XmlToWikiFilesProcessor xmlToWikiFilesProcessor) {
-		DirectoryPathWatcher.xmlToWikiFilesProcessor = xmlToWikiFilesProcessor;
+	public void setFileProcessor(FileProcessor fileProcessor) {
+		this.fileProcessor = fileProcessor;
 	}
 }

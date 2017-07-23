@@ -17,22 +17,21 @@ import com.ili.pas.jaxb.Report;
 import com.ili.pas.jaxb.Section;
 
 /**
- * Processes xml files from the user specified directory, creates a new file
+ * Processes files from the user specified directory, creates a new file
  * containing corresponding wiki markup and saves it in the user specified output directory
  * 
- * @author ilijapasic
- *
  */
-public class XmlToWikiFilesProcessor {
+public class XmlToWikiFileProcessor implements FileProcessor {
 
 	private JAXBContext jaxbContext;
 	private Unmarshaller unmarshaller;
 	private File outputDirectory;
 	private static final String NEW_LINE = "\n";
 	private static final String WIKI_FILE_EXTENTION = ".wiki";
+	private static final String XML_FILE_EXTENTION = ".xml";
 	private int headingLevel;
 
-	public XmlToWikiFilesProcessor(){
+	public XmlToWikiFileProcessor(){
 		
 		headingLevel = 0;
 		
@@ -44,20 +43,21 @@ public class XmlToWikiFilesProcessor {
 		}
 	}
 
+	@Override
 	@SuppressWarnings("deprecation")
 	public void processFiles(File[] filesToProcess) {
 
-		for (File xmlFile : filesToProcess) {
-			System.out.println("Processing file: " + xmlFile);
+		for (File file : filesToProcess) {
+			System.out.println("Processing file: " + file);
 			Report report = null;
 			try {
 				//Check if xml file
-				if(!xmlFile.getName().toLowerCase().endsWith(".xml")){
-					System.out.println("Found non xml file " + xmlFile);
+				if(!file.getName().toLowerCase().endsWith(XML_FILE_EXTENTION)){
+					System.out.println("Found non xml file " + file);
 					continue;
 				}
 				// Unmarshal xml file
-				report = (Report) unmarshaller.unmarshal(xmlFile);
+				report = (Report) unmarshaller.unmarshal(file);
 
 				// Process results
 				List<Object> reportContent = report.getContent();
@@ -65,14 +65,14 @@ public class XmlToWikiFilesProcessor {
 
 				// Write result to .wiki file
 				String filePath = outputDirectory + System.getProperty("file.separator")
-						+ FilenameUtils.getBaseName(xmlFile.getName()) + WIKI_FILE_EXTENTION;
+						+ FilenameUtils.getBaseName(file.getName()) + WIKI_FILE_EXTENTION;
 				
 				System.out.println("Writing file :" + filePath);
 
 				FileUtils.writeStringToFile(new File(filePath), stringBuilder.toString());
 				
 			} catch (IOException | JAXBException e) {
-				System.out.println("Error processing file : " + xmlFile.getName());
+				System.out.println("Error processing file : " + file.getName());
 			}
 		}
 
@@ -94,7 +94,7 @@ public class XmlToWikiFilesProcessor {
 			if (ob instanceof String) {
 				if (!isEmptyLine(ob)) {
 					String text = removeTabs(ob);
-					text = removeExtraNewLineCharacters(text);
+					text = removeNewLineCharacters(text);
 					stringBuilder.append(text);
 				}
 			} else if (ob instanceof Italic) {
@@ -126,7 +126,7 @@ public class XmlToWikiFilesProcessor {
 	 *            text to process
 	 * @return boolean true if text contains only tab and new line characters
 	 */
-	private static boolean isEmptyLine(Object text) {
+	private boolean isEmptyLine(Object text) {
 		String result = ((String) text).replace("\t", "").replace("\n", "");
 		if (result.length() > 0) {
 			return false;
@@ -143,7 +143,7 @@ public class XmlToWikiFilesProcessor {
 	 * @return string with no leading new line characters and one or none new
 	 *         line characters at the end of the string
 	 */
-	private static String removeExtraNewLineCharacters(String text) {
+	private String removeNewLineCharacters(String text) {
 		while (text.startsWith("\n")) {
 			text = text.replaceFirst("\n", "");
 		}
@@ -160,13 +160,9 @@ public class XmlToWikiFilesProcessor {
 	 *            text to process
 	 * @return string with no tab characters
 	 */
-	private static String removeTabs(Object text) {
+	private String removeTabs(Object text) {
 		String result = ((String) text).replace("\t", "");
 		return result;
-	}
-
-	public File getOutputDirectory() {
-		return outputDirectory;
 	}
 
 	public void setOutputDirectory(File outputDirectory) {

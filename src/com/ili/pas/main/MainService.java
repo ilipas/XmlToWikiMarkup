@@ -5,25 +5,31 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 
 import com.ili.pas.util.DirectoryPathWatcher;
-import com.ili.pas.util.XmlToWikiFilesProcessor;
+import com.ili.pas.util.DirectoryUtil;
+import com.ili.pas.util.FileProcessor;
+import com.ili.pas.util.XmlToWikiFileProcessor;
 
 public class MainService {
 
 	private static String START = "start";
 	private static String STOP = "stop";
-	
+
 	private static boolean isStopRequested = false;
 	// default input and output directories
 	private static String inputDir = "input";
 	private static String outputDir = "output";
+	private static String FILE_EXTENSION = ".xml";
+
+	private static DirectoryPathWatcher directoryPathWatcher;
+	private static FileProcessor xmlToWikiFileProcessor;
 
 	public static void main(final String[] args) {
 
 		if (START.equals(args[0])) {
-            start(args);
-        } else if (STOP.equals(args[0])) {
-            stop(args);
-        }
+			start(args);
+		} else if (STOP.equals(args[0])) {
+			stop(args);
+		}
 	}
 
 	public static void start(String[] args) {
@@ -36,42 +42,28 @@ public class MainService {
 				outputDir = args[1];
 			}
 
-			final File inputDirectory = new File(inputDir);
-			if (!inputDirectory.exists()) {
-				System.out.println(inputDirectory + " directory doesn't exists. Creating new...");
-				createDirectory(inputDirectory);
-			}
+			DirectoryUtil directoryUtil = new DirectoryUtil();
+			// create input and output directories if don't exist
+			final File inputDirectory = directoryUtil.createDirectory(inputDir);
+			final File outputDirectory = directoryUtil.createDirectory(outputDir);
 
-			final File outputDirectory = new File(outputDir);
-			if (!outputDirectory.exists()) {
-				System.out.println(outputDirectory + " directory doesn't exists. Creating new...");
-				createDirectory(outputDirectory);
-			}
+			xmlToWikiFileProcessor = new XmlToWikiFileProcessor();
+			xmlToWikiFileProcessor.setOutputDirectory(outputDirectory);
 
-			// Get existing xml files from the specified input directory
-			File[] xmlFiles = inputDirectory.listFiles(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.toLowerCase().endsWith(".xml");
-				}
-			});
-
-			XmlToWikiFilesProcessor xmlToWikiFilesProcessor = new XmlToWikiFilesProcessor();
-			xmlToWikiFilesProcessor.setOutputDirectory(outputDirectory);
-
+			File[] files = directoryUtil.getFilesFromDirectory(inputDirectory, FILE_EXTENSION);
 			// Process existing files if any
-			if (xmlFiles.length != 0) {
-				System.out.println("Found " + xmlFiles.length + "files. Processing...");
-				xmlToWikiFilesProcessor.processFiles(xmlFiles);
+			if (files.length != 0) {
+				System.out
+						.println("Found " + files.length + "files in " + inputDirectory + " directory. Processing...");
+				xmlToWikiFileProcessor.processFiles(files);
 			}
-			
-			DirectoryPathWatcher.setInputDirectory(inputDirectory);
-			DirectoryPathWatcher.setXmlToWikiFilesProcessor(xmlToWikiFilesProcessor);
+
+			directoryPathWatcher = new DirectoryPathWatcher(inputDirectory);
+			directoryPathWatcher.setFileProcessor(xmlToWikiFileProcessor);
 			while (!isStopRequested) {
-				// Keep looking for new files that might be added to the input
-				// directory
-				DirectoryPathWatcher.watchDirectoryPath();
-				System.out.println("Watching for new files in:  " + inputDirectory);
+				// Keep looking for new files added to the input directory
+				directoryPathWatcher.watchDirectoryPath();
+				System.out.println("Watching for new files in: " + inputDirectory);
 
 			}
 
@@ -83,25 +75,11 @@ public class MainService {
 
 	}
 
-	private static void createDirectory(File directory) {
-		boolean isNewOutputDirectoryCreated = directory.mkdir();
-		if (isNewOutputDirectoryCreated) {
-			System.out.println("Directory created.");
-		} else {
-			System.err.println("Failed to create directory " + directory);
-			System.err.println("Exiting...");
-			System.exit(1);
-		}
-
-	}
-
 	public static void stop(String[] args) {
 		System.err.println("Stopping service ...");
 		try {
-			DirectoryPathWatcher.startStopWatchService(false);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+			directoryPathWatcher.startStopWatchService(false);
+		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
 		}
 		isStopRequested = true;
